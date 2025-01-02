@@ -32,7 +32,7 @@ The application is built using React, React Router, and Tailwind CSS to ensure a
 ### Steps
 1. Clone the repository:
    ```bash
-   git clone https://github.com/<your-username>/react-user-app.git
+   git clone https://github.com/GodwinEgo/react-user-app.git
    cd react-user-app
    ```
 2. Install dependencies:
