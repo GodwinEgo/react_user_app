@@ -1,16 +1,10 @@
 import { useEffect, useState } from "react";
+import { FaExclamationCircle } from "react-icons/fa";
 import { Loader, UserCard } from "../../components";
+import { User } from "../../types";
 
-const HomePage = () => {
-  const [users, setUsers] = useState<
-    {
-      id: number;
-      name: string;
-      email: string;
-      phone: string;
-      company: { name: string };
-    }[]
-  >([]);
+const HomePage = ({ searchQuery }: { searchQuery: string }) => {
+  const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -26,12 +20,22 @@ const HomePage = () => {
     return <Loader />;
   }
 
+  const filteredUsers = users.filter(
+    (user) =>
+      user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      user.company.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      user.email.toLowerCase().includes(searchQuery.toLowerCase())
+  );
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      {users.map((user) => (
-        //@ts-ignore
-        <UserCard key={user.id} user={user} />
-      ))}
+      {filteredUsers.length > 0 ? (
+        filteredUsers.map((user) => <UserCard key={user.id} user={user} />)
+      ) : (
+        <div className="flex flex-col items-center justify-center h-[90vh] col-span-full">
+          <FaExclamationCircle className="text-6xl text-gray-400" />
+          <p className="text-gray-600 mt-4">No matching users found.</p>
+        </div>
+      )}
     </div>
   );
 };

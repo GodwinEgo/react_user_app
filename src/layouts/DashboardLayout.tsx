@@ -1,5 +1,7 @@
-import { FaBell, FaCog, FaHome } from "react-icons/fa";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useEffect, useRef, useState } from "react";
+import { FaBars, FaHome, FaSearch } from "react-icons/fa";
+import { Link, useLocation } from "react-router-dom";
+import HomePage from "../features/home";
 
 const navLinks = [
   {
@@ -8,26 +10,42 @@ const navLinks = [
     icon: <FaHome />,
     header: "Welcome to the User Dashboard",
   },
-  {
-    path: "/notifications",
-    label: "Notifications",
-    icon: <FaBell />,
-    header: "Notifications",
-  },
-  { path: "/settings", label: "Settings", icon: <FaCog />, header: "Settings" },
 ];
 
 const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
   const location = useLocation();
-  const navigate = useNavigate();
+  const [searchQuery, setSearchQuery] = useState("");
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const sidebarRef = useRef<HTMLDivElement>(null);
 
   const currentNavLink = navLinks.find(
     (link) => link.path === location.pathname
   );
 
+  const handleClickOutside = (event: MouseEvent) => {
+    if (
+      sidebarRef.current &&
+      !sidebarRef.current.contains(event.target as Node)
+    ) {
+      setSidebarOpen(false);
+    }
+  };
+
+  useEffect(() => {
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
   return (
     <div className="flex h-screen bg-gray-100">
-      <aside className="w-72 bg-[#08083A] shadow-lg flex flex-col">
+      <aside
+        ref={sidebarRef}
+        className={`fixed inset-y-0 left-0 transform ${
+          sidebarOpen ? "translate-x-0" : "-translate-x-full"
+        } md:relative md:translate-x-0 transition-transform duration-200 ease-in-out w-72 bg-[#08083A] shadow-lg flex flex-col z-50`}
+      >
         <div className="bg-white p-4 flex items-center justify-center">
           <img src="/logo.svg" alt="Nolimitbuzz Logo" className="h-12" />
         </div>
@@ -47,6 +65,7 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
                       ? "text-gray-700"
                       : "text-white"
                   }`}
+                  onClick={() => setSidebarOpen(false)}
                 >
                   <span
                     className={`h-12 flex justify-center items-center aspect-square ${
@@ -72,48 +91,38 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
           </ul>
         </nav>
       </aside>
-      <div className="flex-1 flex flex-col">
-        <header className="bg-white bg-opacity-50 backdrop-filter backdrop-blur-lg shadow p-4 flex items-center justify-between">
-          <div className="text-xl font-bold">{currentNavLink?.header}</div>
+      <div className="flex-1 bg-white flex flex-col">
+        <header className="shadow p-5 flex items-center justify-between">
           <div className="flex items-center space-x-4">
+            <button
+              className="md:hidden text-gray-700"
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+            >
+              <FaBars />
+            </button>
+            <div className="text-xl font-bold">{currentNavLink?.header}</div>
+          </div>
+          <div className="flex w-[20vw] items-center space-x-4">
             {location.pathname === "/" && (
-              <input
-                type="text"
-                placeholder="Search..."
-                className="p-2 rounded bg-gray-200 focus:outline-none"
-              />
-            )}
-            {location.pathname === "/settings" ? (
-              <FaHome
-                className="cursor-pointer"
-                onClick={() => navigate("/")}
-              />
-            ) : location.pathname === "/notifications" ? (
-              <FaHome
-                className="cursor-pointer"
-                onClick={() => navigate("/")}
-              />
-            ) : (
-              <>
-                <div className="relative">
-                  <FaBell
-                    className="cursor-pointer"
-                    onClick={() => navigate("/notifications")}
-                  />
-                  <span className="absolute top-0 right-0 inline-block w-2 h-2 bg-red-600 rounded-full"></span>
-                </div>
-                <img
-                  className="h-10 w-10 rounded-full cursor-pointer"
-                  src="https://i.pravatar.cc/150?img=3"
-                  alt="User avatar"
-                  onClick={() => navigate("/settings")}
+              <div className="relative w-full max-w-2xl hidden md:block">
+                <input
+                  type="text"
+                  placeholder="Search by name, company, or email..."
+                  className="p-2 rounded w-full bg-gray-200 focus:outline-none"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
                 />
-              </>
+                <FaSearch className="absolute top-3 right-2 text-gray-500" />
+              </div>
             )}
           </div>
         </header>
         <main className="flex-1 bg-[#EAEDF7] p-6 overflow-y-auto">
-          {children}
+          {location.pathname === "/" ? (
+            <HomePage searchQuery={searchQuery} />
+          ) : (
+            children
+          )}
         </main>
       </div>
     </div>
