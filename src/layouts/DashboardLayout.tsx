@@ -2,13 +2,28 @@ import { FaBell, FaCog, FaHome } from "react-icons/fa";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 
 const navLinks = [
-  { path: "/", label: "Home", icon: <FaHome /> },
-  { path: "/notifications", label: "Notifications", icon: <FaBell /> },
+  {
+    path: "/",
+    label: "Home",
+    icon: <FaHome />,
+    header: "Welcome to the User Dashboard",
+  },
+  {
+    path: "/notifications",
+    label: "Notifications",
+    icon: <FaBell />,
+    header: "Notifications",
+  },
+  { path: "/settings", label: "Settings", icon: <FaCog />, header: "Settings" },
 ];
 
 const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
   const location = useLocation();
   const navigate = useNavigate();
+
+  const currentNavLink = navLinks.find(
+    (link) => link.path === location.pathname
+  );
 
   return (
     <div className="flex h-screen bg-gray-100">
@@ -56,66 +71,45 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
             ))}
           </ul>
         </nav>
-        <nav className="py-6 pl-6 mb-4">
-          <ul>
-            <li
-              className={`rounded-tl-full rounded-bl-full ${
-                location.pathname === "/settings" ? "bg-[#EAEDF7]" : ""
-              }`}
-            >
-              <Link
-                to="/settings"
-                className={`flex space-x-4 items-center p-2 ${
-                  location.pathname === "/settings"
-                    ? "text-gray-700"
-                    : "text-white"
-                }`}
-              >
-                <span
-                  className={`h-12 flex justify-center items-center aspect-square ${
-                    location.pathname === "/settings"
-                      ? "bg-[#4C59FB] rounded-full text-white"
-                      : ""
-                  }`}
-                >
-                  <FaCog />
-                </span>
-                <span
-                  className={`${
-                    location.pathname === "/settings"
-                      ? "text-[#4C59FB]"
-                      : "text-white"
-                  } text-lg`}
-                >
-                  Settings
-                </span>
-              </Link>
-            </li>
-          </ul>
-        </nav>
       </aside>
       <div className="flex-1 flex flex-col">
         <header className="bg-white bg-opacity-50 backdrop-filter backdrop-blur-lg shadow p-4 flex items-center justify-between">
-          <div className="text-xl font-bold">Welcome to the User Dashboard</div>
+          <div className="text-xl font-bold">{currentNavLink?.header}</div>
           <div className="flex items-center space-x-4">
-            <input
-              type="text"
-              placeholder="Search..."
-              className="p-2 rounded bg-gray-200 focus:outline-none"
-            />
-            <div className="relative">
-              <FaBell
-                className="cursor-pointer"
-                onClick={() => navigate("/notifications")}
+            {location.pathname === "/" && (
+              <input
+                type="text"
+                placeholder="Search..."
+                className="p-2 rounded bg-gray-200 focus:outline-none"
               />
-              <span className="absolute top-0 right-0 inline-block w-2 h-2 bg-red-600 rounded-full"></span>
-            </div>
-            <img
-              className="h-10 w-10 rounded-full cursor-pointer"
-              src="https://i.pravatar.cc/150?img=3"
-              alt="User avatar"
-              onClick={() => navigate("/settings")}
-            />
+            )}
+            {location.pathname === "/settings" ? (
+              <FaHome
+                className="cursor-pointer"
+                onClick={() => navigate("/")}
+              />
+            ) : location.pathname === "/notifications" ? (
+              <FaHome
+                className="cursor-pointer"
+                onClick={() => navigate("/")}
+              />
+            ) : (
+              <>
+                <div className="relative">
+                  <FaBell
+                    className="cursor-pointer"
+                    onClick={() => navigate("/notifications")}
+                  />
+                  <span className="absolute top-0 right-0 inline-block w-2 h-2 bg-red-600 rounded-full"></span>
+                </div>
+                <img
+                  className="h-10 w-10 rounded-full cursor-pointer"
+                  src="https://i.pravatar.cc/150?img=3"
+                  alt="User avatar"
+                  onClick={() => navigate("/settings")}
+                />
+              </>
+            )}
           </div>
         </header>
         <main className="flex-1 bg-[#EAEDF7] p-6 overflow-y-auto">
