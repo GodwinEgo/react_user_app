@@ -9,7 +9,7 @@ const App = () => {
       <DashboardLayout>
         <Routes>
           <Route path="/" element={<Home searchQuery="" />} />
-          <Route path="/user/:id" element={<UserDetailsPage />} />
+          <Route path="/use/:id" element={<UserDetailsPage />} />
         </Routes>
       </DashboardLayout>
     </Router>
